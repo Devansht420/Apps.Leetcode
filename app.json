@@ -1,0 +1,16 @@
+{
+    "id": "58efcf4b-6497-4474-8012-a51974226bd3",
+    "version": "0.0.1",
+    "requiredApiVersion": "^1.44.0",
+    "iconFile": "icon.png",
+    "author": {
+        "name": "Devansh",
+        "homepage": "na",
+        "support": "na"
+    },
+    "name": "LeetcodeApp",
+    "nameSlug": "leetcode",
+    "classFile": "LeetcodeApp.ts",
+    "description": "na",
+    "implements": []
+}
