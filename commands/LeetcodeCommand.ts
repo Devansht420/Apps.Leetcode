@@ -18,14 +18,27 @@ export class LeetcodeCommand implements ISlashCommand {
     public providesPreview = false;
 
     public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-        const [username, subcommand] = context.getArguments();
+        const args = context.getArguments();
         const user = context.getSender();
         const room: IRoom = context.getRoom();
 
-
-        if(!username || !subcommand){
-            throw new Error('Error! Please enter the username and subcommand');
+        const appUser = await read.getUserReader().getAppUser();
+        if (!appUser) {
+            throw new Error('App user not found');
         }
+
+        if (args.length === 1 && args[0].toLowerCase() === 'help') {
+            await this.notifyMessageHelp(room, read, user,
+                "Hi, This is Leetcode Bot, Here are some tips to get started \n Use `/lc <leetcode-username> ques` to get the number of questions and type of questions of the user \n Use `/lc <leetcode-username> stats` to get the stats of the user \n Use `/lc help` to get help");
+            return;
+        }
+
+        if (args.length < 2) {
+            await this.notifyMessageHelp(room, read, user, "Please provide an appropriate slash command \n Use `/lc help` to know more");
+            return;
+        }
+
+        const [username, subcommand] = args;
 
         switch(subcommand.toLowerCase()){
             case 'ques':
@@ -39,24 +52,19 @@ export class LeetcodeCommand implements ISlashCommand {
         }
     }
 
-    // private async sendMessage(context: SlashCommandContext, modify: IModify, message: string): Promise<void>{
-    //     const messageStructure = modify.getCreator().startMessage();
-    //     const sender = context.getSender();
-    //     const room = context.getRoom();
-
-    //     messageStructure
-    //         .setSender(sender)
-    //         .setRoom(room)
-    //         .setText(message);
-
-    //     await modify.getCreator().finish(messageStructure);
-    // }
-
     private async notifyMessage(room: IRoom, read: IRead, sender: IUser, message: string): Promise<void> {
         const notifier = read.getNotifier();
         const messageBuilder = notifier.getMessageBuilder();
         messageBuilder.setText(message);
         messageBuilder.setRoom(room);
         return notifier.notifyRoom(room, messageBuilder.getMessage());
+    }
+
+    private async notifyMessageHelp(room: IRoom, read: IRead, user: IUser, message: string): Promise<void> {
+        const notifier = read.getNotifier();
+        const messageBuilder = notifier.getMessageBuilder();
+        messageBuilder.setText(message);
+        messageBuilder.setRoom(room);
+        return notifier.notifyUser(user, messageBuilder.getMessage());
     }
 }
