@@ -39,13 +39,23 @@ export class LeetcodeCommand implements ISlashCommand {
         }
 
         const [username, subcommand] = args;
+        const url  = `https://leetcode-stats-api.herokuapp.com/${username}`
+        const response = await http.get(url);
+
+
+        if(response.data.status === 'error'){
+            await this.notifyMessage(room, read, user, `The user ${username} does not exist \n Please provide a valid username`);
+            return;
+        }
 
         switch(subcommand.toLowerCase()){
             case 'ques':
                 await this.notifyMessage(room, read, user, `Fetching questions for ${username}`)
+                await this.notifyMessage(room, read, user, `Total number of questions solved - ${response.data.totalSolved} / ${response.data.totalQuestions} \n Number of easy questions solved - ${response.data.easySolved} / ${response.data.totalEasy} \n Number of medium questions solved - ${response.data.mediumSolved} / ${response.data.totalMedium} \n Number of hard questions solved - ${response.data.hardSolved} / ${response.data.totalHard}`)
                 break;
             case 'stats':
-                await this.notifyMessage(room, read, user, `Fetching stats for ${username}`);
+                await this.notifyMessage(room, read, user, `Fetching stats for  ${username}`);
+                await this.notifyMessage(room, read, user, `Acceptance rate - ${response.data.acceptanceRate} \n Ranking - ${response.data.ranking}`)
                 break;
             default:
                 throw new Error("Error! Unrecognized subcommand.");
